@@ -26,6 +26,7 @@ public class Node {
 		this.robotLocation = robotLocation;
 		this.parentNode = parentNode;
 		this.pathCost = pathCost;
+		
 	}
 	
 	public int getTotalCost(){
@@ -40,6 +41,10 @@ public class Node {
 		return S + L + Ma + Mb;
 	}
 	
+	public String getStateString(){
+		return "S:"+ S + "  L:" + L + "  Ma:" + Ma + "  Mb:" +Mb + "  Location:" +robotLocation;
+	}
+	
 	public Node getParentNode(){
 		return this.parentNode;
 	}
@@ -48,7 +53,7 @@ public class Node {
 		return  S + Ma + Mb + L;
 	}
 	
-	/**This generates all possible states that could result from The Ronbot©'s action, with some optimisations.
+	/**This generates all possible states that could result from The RonbotÂ©'s action, with some optimisations.
 	 * 
 	 * @return An <code>ArrayList</code> of <code>Nodes</code> representing the child states of this state.
 	 */

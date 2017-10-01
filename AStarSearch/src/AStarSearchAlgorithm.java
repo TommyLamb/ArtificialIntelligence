@@ -1,5 +1,6 @@
 import java.util.Comparator;
 import java.util.PriorityQueue;
+import java.util.Stack;
 
 
 public class AStarSearchAlgorithm {
@@ -32,7 +33,17 @@ public class AStarSearchAlgorithm {
 
 	private void IWantToGoHome(Node goalNode) {
 
-		// TODO
+		Node currNode = goalNode;
+		Stack<String> stack = new Stack<>();
+		
+		do {
+			stack.push(currNode.getStateString());
+			currNode = currNode.getParentNode();
+		} while (currNode != null);
+		
+		while(!stack.isEmpty()){
+			System.out.println(stack.pop());
+		}
 	}
 
 
