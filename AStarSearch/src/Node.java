@@ -29,6 +29,10 @@ public class Node {
 		
 	}
 	
+	/**
+	 * 
+	 * @return The sum of the path and heuristic cost of this node
+	 */
 	public int getTotalCost(){
 		return pathCost + calculateHeuristic();
 	}
@@ -41,8 +45,17 @@ public class Node {
 		return S + L + Ma + Mb;
 	}
 	
-	public String getStateString(){
-		return "S:"+ S + "  L:" + L + "  Ma:" + Ma + "  Mb:" +Mb + "  Location:" +robotLocation;
+	/**Returns an array of integers representing the parcels in this state. In the order of MediumA, MediumB, Small, Large.
+	 * 
+	 * @return Integer array {Ma, Mb, S, L}
+	 */
+	public int[] getParcelState(){
+		int[] x = {Ma, Mb, S, L};
+		return x;
+	}
+	
+	public RobotLocation getRobotLocation(){
+		return robotLocation;
 	}
 	
 	public Node getParentNode(){
@@ -69,6 +82,7 @@ public class Node {
 				if (Ma>0){ //If there are medium parcels in A
 					children.add(new Node(S, L, Ma-1, Mb, RobotLocation.TRUCK, pathCost+1, this)); //Carry Medium to Truck
 				}
+				break;
 				
 			case WAREHOUSEb:				
 				children.add(new Node(S, L, Ma, Mb, RobotLocation.TRUCK, pathCost+1, this)); //Move without carrying parcel
@@ -76,6 +90,7 @@ public class Node {
 				if (Mb>0){ //If there are medium parcels in B
 					children.add(new Node(S, L, Ma, Mb-1, RobotLocation.TRUCK, pathCost+1, this)); //Carry Medium to Truck
 				}
+				break;
 				
 			case TRUCK:
 				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEa, pathCost+1, this)); //Move to A without carrying parcel
@@ -88,6 +103,7 @@ public class Node {
 				if(L>0){	//If there are large packages in truck to go to B
 					children.add(new Node(S, L-1, Ma, Mb, RobotLocation.WAREHOUSEb, pathCost+1, this)); //Carry large to B
 				}
+				break;
 		}
 			
 		return children;
