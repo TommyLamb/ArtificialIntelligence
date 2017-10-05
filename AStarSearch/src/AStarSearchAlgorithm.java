@@ -1,9 +1,10 @@
 import java.util.Comparator;
 import java.util.PriorityQueue;
+import java.util.Scanner;
 import java.util.Stack;
 
 
-public class AStarSearchAlgorithm {
+class AStarSearchAlgorithm {
 
 
 	private class NodeComparator implements Comparator<Node> {
@@ -20,7 +21,7 @@ public class AStarSearchAlgorithm {
 	private PriorityQueue<Node> priorityQueue = new PriorityQueue<>(new NodeComparator());
 
 
-	public AStarSearchAlgorithm(Node rootNode) {
+	AStarSearchAlgorithm(Node rootNode) {
 		priorityQueue.add(rootNode);
 	}
 
@@ -34,20 +35,46 @@ public class AStarSearchAlgorithm {
 	private void IWantToGoHome(Node goalNode) {
 
 		Node currNode = goalNode;
-		Stack<String> stack = new Stack<>();
-		
+		Stack<Node> stack = new Stack<>();
+		Scanner wait = new Scanner(System.in);
 		do {
-			stack.push(currNode.getStateString());
+			stack.push(currNode);
 			currNode = currNode.getParentNode();
 		} while (currNode != null);
-		
 		while(!stack.isEmpty()){
-			System.out.println(stack.pop());
+			currNode = stack.pop();
+			System.out.format(
+					"+-------------+\n" +
+					"| Warehouse A |\n" +
+					"+-------------+\n" +
+					"| Med: %6d |\n" +
+					"+-------------+----------+\n" +
+					"|             |          |\n" +
+					"|             |          |\n" +
+					"|             |   +-------------+\n" +
+					"+------+------+   |    Truck    |\n" +
+					"       |          +-------------+\n" +
+					"       |          | Sma: %6d |\n" +
+					"       |          | Lrg: %6d |\n" +
+					"       |          +-------------+\n" +
+					"       |          |             |\n" +
+					"       |          |             |\n" +
+					"+------+------+   |             |\n" +
+					"| Warehouse B |   +-------------+\n" +
+					"+-------------+          |\n" +
+					"| Med: %6d |          |\n" +
+					"+-------------+--------- +\n" +
+					"|             |\n" +
+					"|             |\n" +
+					"|             |\n" +
+					"+-------------+", currNode.getMa(), currNode.getS(), currNode.getL(),currNode.getMb());
+			wait.nextLine();
 		}
+
 	}
 
 
-	public void startSearch() {
+	void startSearch() {
 
 		Node currNode;
 

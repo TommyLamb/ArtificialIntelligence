@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class Node {
+class Node {
 
 	
 	private int S, L, Ma, Mb, pathCost;
@@ -18,7 +18,7 @@ public class Node {
 	 * @param pathCost The path cost to get to this node from the Root node. Does not include Heuristic cost.
 	 * @param parentNode The node (state) from which this node (state) was derived.
 	 */
-	public Node(int S, int L, int Ma, int Mb, RobotLocation robotLocation, int pathCost, Node parentNode){
+    Node(int S, int L, int Ma, int Mb, RobotLocation robotLocation, int pathCost, Node parentNode){
 		this.S = S;
 		this.L = L;
 		this.Ma = Ma;
@@ -29,7 +29,7 @@ public class Node {
 		
 	}
 	
-	public int getTotalCost(){
+	int getTotalCost(){
 		return pathCost + calculateHeuristic();
 	}
 	
@@ -37,15 +37,11 @@ public class Node {
 	 * 
 	 * @return The sum of all state variables 
 	 */
-	public int getSumOfState(){
+    int getSumOfState(){
 		return S + L + Ma + Mb;
 	}
 	
-	public String getStateString(){
-		return "S:"+ S + "  L:" + L + "  Ma:" + Ma + "  Mb:" +Mb + "  Location:" +robotLocation;
-	}
-	
-	public Node getParentNode(){
+	Node getParentNode(){
 		return this.parentNode;
 	}
 	
@@ -53,48 +49,59 @@ public class Node {
 		return  S + Ma + Mb + L;
 	}
 	
-	/**This generates all possible states that could result from The Ronbot©'s action, with some optimisations.
+	/**This generates all possible states that could result from The Ronbot's action, with some optimisations.
 	 * 
 	 * @return An <code>ArrayList</code> of <code>Nodes</code> representing the child states of this state.
 	 */
-	public ArrayList<Node> generateChildren(){
+    ArrayList<Node> generateChildren(){
 		
 		ArrayList<Node> children = new ArrayList<>();
 		
-		switch (robotLocation){
-			
-			case WAREHOUSEa:		
-				children.add(new Node(S, L, Ma, Mb, RobotLocation.TRUCK, pathCost+1, this)); //Move to Truck without carrying parcel
-				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEb, pathCost+1, this)); //Move to WarehouseB without carrying parcel
-				if (Ma>0){ //If there are medium parcels in A
-					children.add(new Node(S, L, Ma-1, Mb, RobotLocation.TRUCK, pathCost+1, this)); //Carry Medium to Truck
+		switch (robotLocation) {
+
+			case WAREHOUSEa:
+				children.add(new Node(S, L, Ma, Mb, RobotLocation.TRUCK, pathCost + 1, this)); //Move to Truck without carrying parcel
+				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEb, pathCost + 1, this)); //Move to WarehouseB without carrying parcel
+				if (Ma > 0) { //If there are medium parcels in A
+					children.add(new Node(S, L, Ma - 1, Mb, RobotLocation.TRUCK, pathCost + 1, this)); //Carry Medium to Truck
 				}
-				
-			case WAREHOUSEb:				
-				children.add(new Node(S, L, Ma, Mb, RobotLocation.TRUCK, pathCost+1, this)); //Move without carrying parcel
-				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEa, pathCost+1, this)); //Move to WarehouseA without carrying parcel
-				if (Mb>0){ //If there are medium parcels in B
-					children.add(new Node(S, L, Ma, Mb-1, RobotLocation.TRUCK, pathCost+1, this)); //Carry Medium to Truck
+
+			case WAREHOUSEb:
+				children.add(new Node(S, L, Ma, Mb, RobotLocation.TRUCK, pathCost + 1, this)); //Move without carrying parcel
+				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEa, pathCost + 1, this)); //Move to WarehouseA without carrying parcel
+				if (Mb > 0) { //If there are medium parcels in B
+					children.add(new Node(S, L, Ma, Mb - 1, RobotLocation.TRUCK, pathCost + 1, this)); //Carry Medium to Truck
 				}
-				
+
 			case TRUCK:
-				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEa, pathCost+1, this)); //Move to A without carrying parcel
-				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEb, pathCost+1, this)); //Move to B without carrying parcel
-				
-				if(S>0){	// If there are small packages in truck to go to A
-					children.add(new Node(S-1, L, Ma, Mb, RobotLocation.WAREHOUSEa, pathCost+1, this)); //Carry small to A
+				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEa, pathCost + 1, this)); //Move to A without carrying parcel
+				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEb, pathCost + 1, this)); //Move to B without carrying parcel
+
+				if (S > 0) {    // If there are small packages in truck to go to A
+					children.add(new Node(S - 1, L, Ma, Mb, RobotLocation.WAREHOUSEa, pathCost + 1, this)); //Carry small to A
 				}
-				
-				if(L>0){	//If there are large packages in truck to go to B
-					children.add(new Node(S, L-1, Ma, Mb, RobotLocation.WAREHOUSEb, pathCost+1, this)); //Carry large to B
+
+				if (L > 0) {    //If there are large packages in truck to go to B
+					children.add(new Node(S, L - 1, Ma, Mb, RobotLocation.WAREHOUSEb, pathCost + 1, this)); //Carry large to B
 				}
 		}
-			
 		return children;
-		
 	}
-	
-	
-	
-	
+
+	int getS() {
+		return S;
+	}
+
+	int getL() {
+		return L;
+	}
+
+	int getMa() {
+		return Ma;
+	}
+
+	int getMb() {
+		return Mb;
+	}
+
 }
