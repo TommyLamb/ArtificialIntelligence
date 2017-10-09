@@ -1,6 +1,3 @@
-
-
-
 public class AStarSearch {
 
 	
@@ -12,5 +9,6 @@ public class AStarSearch {
 		
 		AStarSearchAlgorithm search = new AStarSearchAlgorithm(root);
 		search.startSearch();
+
 	}
 }

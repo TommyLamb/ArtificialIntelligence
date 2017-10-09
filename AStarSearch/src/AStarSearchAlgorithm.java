@@ -18,7 +18,7 @@ public class AStarSearchAlgorithm {
 	}
 
 	private PriorityQueue<Node> priorityQueue = new PriorityQueue<>(new NodeComparator());
-
+	private StatePrettyPrinter prettyPrinter = new StatePrettyPrinter();
 
 	public AStarSearchAlgorithm(Node rootNode) {
 		priorityQueue.add(rootNode);
@@ -34,17 +34,23 @@ public class AStarSearchAlgorithm {
 	private void IWantToGoHome(Node goalNode) {
 
 		Node currNode = goalNode;
-		Stack<String> stack = new Stack<>();
+		Stack<Node> stack = new Stack<>();
 		
 		System.out.println("Path: " + goalNode.getPathCost());
 		
 		do {
-			stack.push(currNode.getStateString());
+			stack.push(currNode);
 			currNode = currNode.getParentNode();
 		} while (currNode != null);
 		
+		
+		currNode = stack.pop(); //RootNode
+		prettyPrinter.printState(currNode);
+		
 		while(!stack.isEmpty()){
-			System.out.println(stack.pop());
+			prettyPrinter.printSeparator();
+			prettyPrinter.printStateTransition(currNode, stack.peek());
+			currNode = stack.pop();
 		}
 	}
 
