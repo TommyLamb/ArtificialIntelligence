@@ -31,42 +31,54 @@ public class AStarSearchAlgorithm {
 	}
 
 
-	private void IWantToGoHome(Node goalNode) {
-
-		Node currNode = goalNode;
-		Stack<Node> stack = new Stack<>();
+	/**
+	 * 
+	 * @param goalNode
+	 * @return goal state path cost
+	 */
+	private int IWantToGoHome(Node goalNode) {
+//
+//		Node currNode = goalNode;
+//		Stack<Node> stack = new Stack<>();
 		
-		System.out.println("Path: " + goalNode.getPathCost());
+		return goalNode.getPathCost();
 		
-		do {
-			stack.push(currNode);
-			currNode = currNode.getParentNode();
-		} while (currNode != null);
-		
-		
-		currNode = stack.pop(); //RootNode
-		prettyPrinter.printState(currNode);
-		
-		while(!stack.isEmpty()){
-			prettyPrinter.printSeparator();
-			prettyPrinter.printStateTransition(currNode, stack.peek());
-			currNode = stack.pop();
-		}
+//		do {
+//			stack.push(currNode);
+//			currNode = currNode.getParentNode();
+//		} while (currNode != null);
+//		
+//		
+//		currNode = stack.pop(); //RootNode
+//		prettyPrinter.printState(currNode);
+//		
+//		while(!stack.isEmpty()){
+//			prettyPrinter.printSeparator();
+//			prettyPrinter.printStateTransition(currNode, stack.peek());
+//			currNode = stack.pop();
+//		}
 	}
 
 
-	public void startSearch() {
+	/**
+	 * 
+	 * @return The found path cost to goal state
+	 * @throws Exception 
+	 */
+	public int startSearch() throws Exception {
 
 		Node currNode;
 
 		while (!priorityQueue.isEmpty()) {
 			currNode = priorityQueue.remove();
 			if (areWeThereYet(currNode)) {
-				IWantToGoHome(currNode);
-				break;
+				return IWantToGoHome(currNode);
+				//break;
 			} else
 				priorityQueue.addAll(currNode.generateChildren());
 		}
+		
+		throw new Exception();
 
 	}
 
