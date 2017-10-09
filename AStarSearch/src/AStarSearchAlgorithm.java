@@ -36,6 +36,8 @@ public class AStarSearchAlgorithm {
 		Node currNode = goalNode;
 		Stack<Node> stack = new Stack<>();
 		
+		System.out.println("Path: " + goalNode.getPathCost());
+		
 		do {
 			stack.push(currNode);
 			currNode = currNode.getParentNode();

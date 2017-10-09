@@ -62,8 +62,28 @@ public class Node {
 		return this.parentNode;
 	}
 	
-	private int calculateHeuristic(){
-		return  S + Ma + Mb + L;
+	public int getPathCost(){
+		return pathCost;
+	}
+	
+	public int calculateHeuristic(){
+		//return  S + Ma + Mb + L;
+		
+		return calculateSecondHeuristic();
+	}
+	
+	public int calculateSecondHeuristic(){
+		
+		int x = (2*(Math.min(Ma, S)))+(2*(Math.min(Mb, L)));
+		int a = Math.max(Ma - S, S - Ma);
+		int b = Math.max(Mb-L, L-Mb);
+		
+		if (((Ma - S)>0 && (L-Mb)>0) || ((Mb-L)>0 && (S-Ma)>0)){
+			return x + 2* (a + b) - Math.min(a, b) -1;
+			
+		} else {
+			return x+ (2 * (a+b)) -1;
+		}
 	}
 	
 	/**This generates all possible states that could result from The Ronbot©'s action, with some optimisations.
