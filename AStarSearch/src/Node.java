@@ -30,14 +30,17 @@ public class Node {
 	}
 	
 	/**
+	 * Get the total A* search cost for this node; the sum of the path cost from the root node to here, and the estimated cost to goal given by <code>hue</code> 
 	 * 
-	 * @return The sum of the path and heuristic cost of this node
+	 * @param hue The Heuristic to use in calculating the cost-to-goal from this node. One of the <code>NodeHeuristic</code> enums.
+	 * @return The sum of path and heuristic costs.
 	 */
-	public int getTotalCost(){
-		return pathCost + calculateHeuristic();
+	public int getTotalCost(NodeHeuristic hue){
+		return pathCost + getHeuristicCost(hue);
 	}
 	
-	/**Returns the sum of parcels in the wrong place
+	/**
+	 * Returns the sum of parcels in the wrong place. Used to find the goal state.
 	 * 
 	 * @return The sum of all state variables 
 	 */
@@ -45,7 +48,8 @@ public class Node {
 		return S + L + Ma + Mb;
 	}
 	
-	/**Returns an array of integers representing the parcels in this state. In the order of MediumA, MediumB, Small, Large.
+	/**
+	 * Returns an array of integers representing the parcels in this state. In the order of MediumA, MediumB, Small, Large.
 	 * 
 	 * @return Integer array {Ma, Mb, S, L}
 	 */
@@ -66,13 +70,38 @@ public class Node {
 		return pathCost;
 	}
 	
-	public int calculateHeuristic(){
-		//return  S + Ma + Mb + L;
+	/**
+	 * Method for getting the heuristic cost to goal state.
+	 * 
+	 * @param hue The heuristic to use. One of the <code>NodeHeuristic</code> enums
+	 * @return The calculated cost.
+	 */
+	public int getHeuristicCost(NodeHeuristic hue){
 		
-		return calculateSecondHeuristic();
+		switch (hue){
+			case MANHATTAN:
+				return calculateManhattanHeuristic();
+				
+			case REFINED:
+				return calculateRefinedHeuristic();
+				
+			default:
+				return calculateRefinedHeuristic();
+				
+		}
 	}
 	
-	public int calculateSecondHeuristic(){
+	private int calculateManhattanHeuristic(){
+		return  S + Ma + Mb + L;
+		
+	}
+	
+	/**
+	 * For an explanation, please see external documentation
+	 * 
+	 * @return The calculated cost
+	 */
+	private int calculateRefinedHeuristic(){
 		
 		int x = (2*(Math.min(Ma, S)))+(2*(Math.min(Mb, L)));
 		int a = Math.max(Ma - S, S - Ma);

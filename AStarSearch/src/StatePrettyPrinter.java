@@ -18,7 +18,7 @@ public class StatePrettyPrinter {
 
 	private final int aToTruckLineHorizontal = 0; // %1$
 	private final int aRonbotHead = 1; // %2$
-	private final int aRonbotBody = 2; // %3$
+	//private final int aRonbotBody = 2; // %3$
 	//private final int aRonbotLeg = 3; // %4$
 	private final int aToTruckLineVertical = 4; // %5$
 	private final int aToBLine = 5; // %6$

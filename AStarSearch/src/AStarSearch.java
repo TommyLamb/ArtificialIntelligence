@@ -1,49 +1,60 @@
+import java.util.Stack;
+
 public class AStarSearch {
 
 
 	public static void main(String[] args) {
 
+		
+		Node initialState = new Node(5, 0, 5, 5, RobotLocation.WAREHOUSEa, 0, null);
+		NodeHeuristic hue = NodeHeuristic.REFINED;
+		
+		
+		executeSearch(initialState, hue);
+
+	}
+	
+	private static void executeSearch(Node initialState, NodeHeuristic hue){
+		
 		final long startTime = System.currentTimeMillis();
+
+		AStarSearchAlgorithm search = new AStarSearchAlgorithm(initialState, hue);
+		Stack<Node> path = new Stack<Node>();
 		
-		int maxUncertainty = 0;
-		int sumUncertainty = 0;
-		
-		for (int S = 0; S < 5; S++) {
-			for (int L = 0; L < 5; L++) {
-				for (int ma = 0; ma < 5; ma++) {
-					for (int mb = 0; mb < 5; mb++) {
-						Node root = new Node(S, L, ma, mb, RobotLocation.WAREHOUSEa, 0, null);
-						AStarSearchAlgorithm search = new AStarSearchAlgorithm(root);
 
-						int hue = root.calculateHeuristic();
-						int path = 0;
-
-						try {
-							path = search.startSearch();
-						} catch (Exception e) {
-							System.err.println("Goal State unreachable!");
-							System.exit(0);
-						}
-
-						if (path < hue) {
-							System.out.println("Hue overestimated:");
-							System.exit(0);
-						} else {
-							sumUncertainty += hue-path;
-							if ((hue - path)<maxUncertainty){
-								maxUncertainty = hue-path;
-							}
-						}
-					}
-				}
-			}
+		try {
+			path = search.search();
+		} catch (Exception e) {
+			System.err.println("Goal State unreachable!");
+			System.exit(0);
 		}
-		
+
+
 		final long duration = System.currentTimeMillis() - startTime;
 		
+		printPath(path, duration, hue);
+	}
+	
+	
+	private static void printPath(Stack<Node> stack, long duration, NodeHeuristic hue){
 		
-		System.out.println("Execution time: " + duration+"ms");
-		System.out.println("MaxUncertainty " + maxUncertainty);
-		System.out.println("Sum Uncertainty "+sumUncertainty);
+		StatePrettyPrinter prettyPrinter = new StatePrettyPrinter();
+		
+		
+		Node currNode = stack.pop(); //RootNode
+		int predictedCost = currNode.getHeuristicCost(hue);
+		
+		prettyPrinter.printState(currNode);
+		
+		while(!stack.isEmpty()){
+			prettyPrinter.printSeparator();
+			prettyPrinter.printStateTransition(currNode, stack.peek());
+			currNode = stack.pop();
+		}
+		
+		//CurrNode is goal state
+
+		System.out.println("Execution time: " + duration + "ms");
+		System.out.println("Error in heuristic (Heuristic - Path cost): " + (predictedCost - currNode.getPathCost()));
 	}
 }
