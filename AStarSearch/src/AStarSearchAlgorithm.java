@@ -1,31 +1,35 @@
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.Stack;
 
 
 public class AStarSearchAlgorithm {
 
-	private PriorityQueue<Node> priorityQueue;
+	private HashMap<Integer, Node> visitedNodes = new HashMap<>();
+	private PriorityQueue<Node> priorityQueue = new PriorityQueue<>(new Comparator<Node>(){
+
+		@Override
+		public int compare(Node arg0, Node arg1) {
+
+			return arg0.getTotalCost() - arg1.getTotalCost();
+		}
+		
+	});
 
 	/**
-	 * Initialises a new A* Search from the given initial state using the specified heuristic
+	 * Initialises a new A* Search from the given initial state
 	 * 
 	 * @param initialState A <code>Node</code> representing the initial state
-	 * @param hue The heuristic to use in cost estimations. One of the <code>NodeHeuristic</code> enums
 	 */
-	public AStarSearchAlgorithm(Node initialState, NodeHeuristic hue) {
+	public AStarSearchAlgorithm(Node initialState) {
 		
-		priorityQueue = new PriorityQueue<>(new Comparator<Node>(){
-
-			@Override
-			public int compare(Node arg0, Node arg1) {
-
-				return arg0.getHeuristicCost(hue) - arg1.getHeuristicCost(hue);
-			}
-			
-		});
+		ArrayList<Node> list = new ArrayList<>();
 		
-		priorityQueue.add(initialState);
+		list.add(initialState);
+		
+		addToQueue(list);
 	}
 
 	/**
@@ -59,6 +63,19 @@ public class AStarSearchAlgorithm {
 		return stack;
 	}
 
+	/**
+	 * This method adds the list of nodes to the priority queue so long as they represent an unevaluated state. More specifically, 
+	 * it will not add those nodes whose state matches one in the <code>visitedNodes</code> hash map.
+	 * 
+	 * @param nodes The <strong>ArrayList&lt;Node&gt;</strong> to add
+	 */
+	private void addToQueue(ArrayList<Node> nodes){
+		
+		for (Node x : nodes)
+			if (!visitedNodes.containsKey(x.hashCode()))
+				priorityQueue.add(x);
+
+	}
 
 	/**
 	 * Searches for a path from the initial state specified in the constructor to the goal state.
@@ -72,10 +89,13 @@ public class AStarSearchAlgorithm {
 
 		while (!priorityQueue.isEmpty()) {
 			currNode = priorityQueue.remove();
-			if (areWeThereYet(currNode)) {
+			if (areWeThereYet(currNode)) 
 				return IWantToGoHome(currNode);
-			} else
-				priorityQueue.addAll(currNode.generateChildren());
+			else if (!visitedNodes.containsKey(currNode.hashCode())){ 	//If current state never before visited
+				visitedNodes.put(currNode.hashCode(), currNode);	//List it as visited
+				addToQueue(currNode.generateChildren());			//Add appropriate children to queue
+			}
+				
 		}
 		
 		throw new Exception();

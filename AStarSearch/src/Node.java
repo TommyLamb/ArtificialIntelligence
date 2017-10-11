@@ -6,6 +6,7 @@ public class Node {
 	private int S, L, Ma, Mb, pathCost;
 	private Node parentNode;
 	private RobotLocation robotLocation;
+	private NodeHeuristic heuristic;
 	
 	/**
 	 * Construct a Node representing a state in the state space, with attributes and methods for determining parent and child states
@@ -17,8 +18,9 @@ public class Node {
 	 * @param robotLocation The location of the Ronbot
 	 * @param pathCost The path cost to get to this node from the Root node. Does not include Heuristic cost.
 	 * @param parentNode The node (state) from which this node (state) was derived.
+	 * @param heuristic The <code>NodeHeuristic</code> to use for evaluating cost to goal.
 	 */
-	public Node(int S, int L, int Ma, int Mb, RobotLocation robotLocation, int pathCost, Node parentNode){
+	public Node(int S, int L, int Ma, int Mb, RobotLocation robotLocation, int pathCost, Node parentNode, NodeHeuristic heuristic){
 		this.S = S;
 		this.L = L;
 		this.Ma = Ma;
@@ -26,17 +28,17 @@ public class Node {
 		this.robotLocation = robotLocation;
 		this.parentNode = parentNode;
 		this.pathCost = pathCost;
+		this.heuristic = heuristic;
 		
 	}
 	
 	/**
-	 * Get the total A* search cost for this node; the sum of the path cost from the root node to here, and the estimated cost to goal given by <code>hue</code> 
+	 * Get the total A* search cost for this node; the sum of the path cost from the root node to here, and the estimated cost to goal. 
 	 * 
-	 * @param hue The Heuristic to use in calculating the cost-to-goal from this node. One of the <code>NodeHeuristic</code> enums.
 	 * @return The sum of path and heuristic costs.
 	 */
-	public int getTotalCost(NodeHeuristic hue){
-		return pathCost + getHeuristicCost(hue);
+	public int getTotalCost(){
+		return pathCost + getHeuristicCost();
 	}
 	
 	/**
@@ -73,47 +75,12 @@ public class Node {
 	/**
 	 * Method for getting the heuristic cost to goal state.
 	 * 
-	 * @param hue The heuristic to use. One of the <code>NodeHeuristic</code> enums
 	 * @return The calculated cost.
 	 */
-	public int getHeuristicCost(NodeHeuristic hue){
-		
-		switch (hue){
-			case MANHATTAN:
-				return calculateManhattanHeuristic();
-				
-			case REFINED:
-				return calculateRefinedHeuristic();
-				
-			default:
-				return calculateRefinedHeuristic();
-				
-		}
+	public int getHeuristicCost(){
+		return heuristic.getHeuristicCost(S, L, Ma, Mb);
 	}
 	
-	private int calculateManhattanHeuristic(){
-		return  S + Ma + Mb + L;
-		
-	}
-	
-	/**
-	 * For an explanation, please see external documentation
-	 * 
-	 * @return The calculated cost
-	 */
-	private int calculateRefinedHeuristic(){
-		
-		int x = (2*(Math.min(Ma, S)))+(2*(Math.min(Mb, L)));
-		int a = Math.max(Ma - S, S - Ma);
-		int b = Math.max(Mb-L, L-Mb);
-		
-		if (((Ma - S)>0 && (L-Mb)>0) || ((Mb-L)>0 && (S-Ma)>0)){
-			return x + 2* (a + b) - Math.min(a, b) -1;
-			
-		} else {
-			return x+ (2 * (a+b)) -1;
-		}
-	}
 	
 	/**This generates all possible states that could result from The Ronbot©'s action, with some optimisations.
 	 * 
@@ -126,31 +93,31 @@ public class Node {
 		switch (robotLocation){
 			
 			case WAREHOUSEa:		
-				children.add(new Node(S, L, Ma, Mb, RobotLocation.TRUCK, pathCost+1, this)); //Move to Truck without carrying parcel
-				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEb, pathCost+1, this)); //Move to WarehouseB without carrying parcel
+				children.add(new Node(S, L, Ma, Mb, RobotLocation.TRUCK, pathCost+1, this, heuristic)); //Move to Truck without carrying parcel
+				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEb, pathCost+1, this, heuristic)); //Move to WarehouseB without carrying parcel
 				if (Ma>0){ //If there are medium parcels in A
-					children.add(new Node(S, L, Ma-1, Mb, RobotLocation.TRUCK, pathCost+1, this)); //Carry Medium to Truck
+					children.add(new Node(S, L, Ma-1, Mb, RobotLocation.TRUCK, pathCost+1, this, heuristic)); //Carry Medium to Truck
 				}
 				break;
 				
 			case WAREHOUSEb:				
-				children.add(new Node(S, L, Ma, Mb, RobotLocation.TRUCK, pathCost+1, this)); //Move without carrying parcel
-				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEa, pathCost+1, this)); //Move to WarehouseA without carrying parcel
+				children.add(new Node(S, L, Ma, Mb, RobotLocation.TRUCK, pathCost+1, this, heuristic)); //Move without carrying parcel
+				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEa, pathCost+1, this, heuristic)); //Move to WarehouseA without carrying parcel
 				if (Mb>0){ //If there are medium parcels in B
-					children.add(new Node(S, L, Ma, Mb-1, RobotLocation.TRUCK, pathCost+1, this)); //Carry Medium to Truck
+					children.add(new Node(S, L, Ma, Mb-1, RobotLocation.TRUCK, pathCost+1, this, heuristic)); //Carry Medium to Truck
 				}
 				break;
 				
 			case TRUCK:
-				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEa, pathCost+1, this)); //Move to A without carrying parcel
-				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEb, pathCost+1, this)); //Move to B without carrying parcel
+				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEa, pathCost+1, this, heuristic)); //Move to A without carrying parcel
+				children.add(new Node(S, L, Ma, Mb, RobotLocation.WAREHOUSEb, pathCost+1, this, heuristic)); //Move to B without carrying parcel
 				
 				if(S>0){	// If there are small packages in truck to go to A
-					children.add(new Node(S-1, L, Ma, Mb, RobotLocation.WAREHOUSEa, pathCost+1, this)); //Carry small to A
+					children.add(new Node(S-1, L, Ma, Mb, RobotLocation.WAREHOUSEa, pathCost+1, this, heuristic)); //Carry small to A
 				}
 				
 				if(L>0){	//If there are large packages in truck to go to B
-					children.add(new Node(S, L-1, Ma, Mb, RobotLocation.WAREHOUSEb, pathCost+1, this)); //Carry large to B
+					children.add(new Node(S, L-1, Ma, Mb, RobotLocation.WAREHOUSEb, pathCost+1, this, heuristic)); //Carry large to B
 				}
 				break;
 		}
@@ -159,7 +126,11 @@ public class Node {
 		
 	}
 	
-	
+	@Override
+	public int hashCode(){
+		return (S + "|"+L+"|"+Ma+"|"+Mb+"|"+robotLocation.toString()).hashCode();
+		
+	}
 	
 	
 }

@@ -5,20 +5,19 @@ public class AStarSearch {
 
 	public static void main(String[] args) {
 
+		NodeHeuristic hue = RefinedHeuristic.getInstance();
+		Node initialState = new Node(10, 10, 100, 20, RobotLocation.WAREHOUSEa, 0, null, hue);
+
 		
-		Node initialState = new Node(5, 0, 5, 5, RobotLocation.WAREHOUSEa, 0, null);
-		NodeHeuristic hue = NodeHeuristic.REFINED;
-		
-		
-		executeSearch(initialState, hue);
+		executeSearch(initialState);
 
 	}
 	
-	private static void executeSearch(Node initialState, NodeHeuristic hue){
+	private static void executeSearch(Node initialState){
 		
 		final long startTime = System.currentTimeMillis();
 
-		AStarSearchAlgorithm search = new AStarSearchAlgorithm(initialState, hue);
+		AStarSearchAlgorithm search = new AStarSearchAlgorithm(initialState);
 		Stack<Node> path = new Stack<Node>();
 		
 
@@ -32,17 +31,17 @@ public class AStarSearch {
 
 		final long duration = System.currentTimeMillis() - startTime;
 		
-		printPath(path, duration, hue);
+		printPath(path, duration);
 	}
 	
 	
-	private static void printPath(Stack<Node> stack, long duration, NodeHeuristic hue){
+	private static void printPath(Stack<Node> stack, long duration){
 		
 		StatePrettyPrinter prettyPrinter = new StatePrettyPrinter();
 		
 		
 		Node currNode = stack.pop(); //RootNode
-		int predictedCost = currNode.getHeuristicCost(hue);
+		int predictedCost = currNode.getHeuristicCost();
 		
 		prettyPrinter.printState(currNode);
 		
