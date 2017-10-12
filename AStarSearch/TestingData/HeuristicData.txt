@@ -1,0 +1,51 @@
+First Heuristic - 3D Manhattan.
+		For S, L, Ma, Mb < 20 as nested loops in that order. 160000 discrete states.
+		Test cancelled due to excessive compute time.
+			
+
+Second Heuristic.
+	For S, L, Ma, Mb < 20 as nested loops in that order. 160000 discrete states.
+		Starting at Truck: 
+		
+			Max Uncertainty = -1
+			Sum Uncertainty = -82670
+			Average Uncertainty = -82670/160000 = -0.5166875
+			
+		Starting at WarehouseA:
+			MaxUncertainty = -2
+			Sum Uncertainty = -84019/160000 = -0.52511875
+			Average uncertainty = -84019/160000 = -0.52511875
+			
+			
+Running the above tests on Heuristic 2, CPU usage hovered around 19~22%, and memory usage was well under 700MB (Less than Chrome at the time). No single core was particularly taxed.
+For heuristic one, it pushed the CPU consistently to 87~92%, and memory usage to just under 2.2 GB. All cores were pushed to around 90%.
+This was total CPU utilisation, across all 6 Logical cores for both.
+
+
+For S, L, Ma, Mb <5 as nested loops in that order. 625 discrete states. All start at WarehouseA.
+	Heuristic 1 - 3D Manhattan
+		Execution time: 286ms
+		MaxUncertainty = -8
+		Sum Uncertainty = -1462
+		Average Uncertainty = -2.3392
+		
+	Heuristic 2
+		Execution time: 38ms
+		MaxUncertainty -2
+		Sum Uncertainty -379
+		Average Uncertainty = -0.6064
+		
+
+		
+		
+
+For S, L, Ma, Mb <10 as nested loops in that order. 10,000 discrete states. All start at WarehouseA.
+	Heuristic 1 - 3D Manhattan
+		Started at 17:25:37
+		Still not complete at 19:54:37
+		
+	Heuristic 2
+		Execution time: 1172ms
+		MaxUncertainty -2
+		Sum Uncertainty -5509
+		Average Uncertainty = -0.5509
