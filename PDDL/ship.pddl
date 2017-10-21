@@ -1,142 +1,194 @@
-﻿(define (domain ship)
-    (:requirements :strips)
+(define (domain ship)
+    (:requirements :adl)
     
+	(:types
+		veryheavyobj heavyobj lightobj - obj
+		humanoid medicalsupplies plasma - lightobj
+		person robot - humanoid
+		captain navigator engineer chief doctor - person
+		shuttle - veryheavyobj
+		room shuttle planet - place
+		bridge engineering transporter lab cargobay shuttlebay sickbay - room
+	)
+
     (:predicates 
-        (location ?r)
-        (person ?p)
-        (shuttle ?s)
-        (door ?r1 ?r2)
-        (elevator ?r1 ?r2)
-        (planet ?l)
-        (shiploc ?l)
-        (shuttleloc ?s ?l)
-        (personloc ?p ?r)
+        
+        (door ?r1 ?r2 - room)
+        (elevator ?r1 ?r2 - room)
+        (shiploc ?l - planet)
+        (in ?o - obj ?p - place)
+	(holding ?h - humanoid ?o - object)
         (ship_broken)
         (transporter_broken)
-        (lequipment ?e)
-        (lequipmentloc ?e ?l)
     )
     
     (:action move_using_door
-        :parameters (?p ?r1 ?r2)
-        :precondition (and (person ?p) (location ?r1) (location ?r2) (personloc ?p ?r1) (door ?r1 ?r2))
-        :effect (and (personloc ?p ?r2) (not (personloc ?p ?r1)))
+        :parameters (?h - humanoid ?r1 ?r2 - room)
+        :precondition (and (in ?h ?r1) (door ?r1 ?r2))
+        :effect (and (in ?h ?r2) (not (in ?h ?r1)))
     )
     (:action move_using_elevator
-        :parameters (?p ?r1 ?r2)
-        :precondition (and (person ?p) (location ?r1) (location ?r2) (personloc ?p ?r1) (elevator ?r1 ?r2))
-        :effect (and (personloc ?p ?r2) (not (personloc ?p ?r1)))
+        :parameters (?h - humanoid ?r1 ?r2 - room)
+        :precondition (and (in ?h ?r1) (elevator ?r1 ?r2))
+        :effect (and (in ?h ?r2) (not (in ?h ?r1)))
     )
     (:action move_ship
-        :parameters (?l1 ?l2)
+        :parameters (?l1 ?l2 - planet)
         :precondition (and 
             (not(ship_broken))
-            (planet ?l1) 
-            (planet ?l2) 
             (not (= ?l1 ?l2)) 
             (shiploc ?l1)
-            (personloc captain bridge)
-            (personloc navigator bridge))
+            (exists (?captain - captain ?navigator - navigator ?room - bridge) (and (in ?captain ?room) (in ?navigator ?room)))
+	)
         :effect (and (shiploc ?l2) (not(shiploc ?l1)))
     ) 
     (:action teleport_to_planet
-        :parameters (?p ?l)
-        :precondition (and (shiploc ?l) (person ?p) (planet ?l) (personloc transport_cheif transporter) (personloc ?p transporter) (not (transporter_broken)))
-        :effect (and (personloc ?p ?l) (not (personloc ?p transporter)))
+        :parameters (?lo - lightobj ?p - planet)
+        :precondition (and 
+		(shiploc ?p) 
+		(exists (?chief - chief ?room - transporter) (and (in ?lo ?room)(in ?chief ?room))) 
+		(not (transporter_broken))
+	)
+        :effect (and 
+		(in ?lo ?p)  
+		(forall (?room - transporter) (when (in ?lo ?room) (not (in ?lo ?room))))
+    	)
     )
     (:action teleport_from_planet
-        :parameters (?p ?l)
-        :precondition (and (shiploc ?l) (person ?p) (planet ?l) (personloc transport_cheif transporter) (personloc ?p ?l) (not (transporter_broken)))
-        :effect (and (not(personloc ?p ?l)) (personloc ?p transporter))
+        :parameters (?lo - lightobj ?p - planet ?r - room)
+        :precondition (and
+		 (shiploc ?p) 
+		(exists (?chief - chief ?transporterroom - transporter) (in ?chief ?transporterroom)) 
+		(in ?lo ?p) 
+		(not (transporter_broken))
+	)
+        :effect (and
+	(not(in ?lo ?p))
+	(in ?lo ?room))
     )
     (:action fix_ship
-        :precondition (and (personloc engineer engineering) (ship_broken))
+        :precondition (and 
+		(ship_broken)
+		(exists (?engi - engineer ?room - engineering) (in ?engi ?engineering))
+	)
         :effect (not (ship_broken))
     )
     (:action board_shuttle
-        :parameters (?p ?s ?l)
-        :precondition (and 
-            (person ?p)
-            (shuttle ?s)
-            (location ?l)
-            (shuttleloc ?s ?l)
-            (personloc ?p ?l))
+        :parameters (?h - humanoid ?s - shuttle)
+        :precondition (exists (?place - place) (and (in ?h ?place) (in ?s ?place)))
         :effect (and
-            (personloc ?p ?s)
-            (not (personloc ?p ?l))
-        )
+            	(in ?h ?s)
+		(forall (?place - place) 
+			(when (and (in ?h ?place) (not (= ?place ?s))) 
+		            (not (in ?h ?place))
+			)
+		)
+        	)
     )
     (:action alight_from_shuttle
-        :parameters (?p ?s ?l)
-        :precondition (and 
-            (person ?p)
-            (shuttle ?s)
-            (location ?l)
-            (shuttleloc ?s ?l)
-            (personloc ?p ?s))
+        :parameters (?h - humanoid ?s - shuttle)
+        :precondition (in ?h ?s)
         :effect (and
-            (personloc ?p ?l)
-            (not (personloc ?p ?s))
-        )
+            	(forall (?place - place) 
+			(when (in ?s ?place) 
+				(in ?h ?place)
+			)
+		)
+            	(not (in ?h ?s))
+        	)
     )
     (:action send_shuttle_to_planet
-        :parameters (?s ?p)
+        :parameters (?s - shuttle ?p - planet)
         :precondition (and 
-            (shuttle ?s)
-            (planet ?p)
             (shiploc ?p)
-            (shuttleloc ?s shuttlebay))
+            (exists (?room - shuttlebay ?pilot - humanoid) 
+		(and 
+			(in ?s ?room)
+			(in ?pilot ?s)
+		)
+	   )
+	)
         :effect (and
-            (shuttleloc ?s ?p)
-            (not (shuttleloc ?s shuttlebay))
-        )
-    )
+            (in ?s ?p)
+      		(not (in ?s ?room))
+	)
+   )
     (:action return_shuttle_to_ship
-        :parameters (?s ?p)
+        :parameters (?s - shuttle ?p - planet ?shuttlebay - shuttlebay)
         :precondition (and 
-            (shuttle ?s)
-            (planet ?p)
             (shiploc ?p)
-            (shuttleloc ?s ?p))
+            (in ?s ?p)
+		(exists (?pilot - humanoid) (in ?pilot ?s))
+	)
         :effect (and
-            (shuttleloc ?s shuttlebay)
-            (not (shuttleloc ?s ?p))
+            (in ?s ?shuttlebay)
+            (not (in ?s ?p))
         )
-    )    
-    (:action move_light_equipment
-        :parameters (?a ?b ?p ?e)
-        :precondition (and 
-            (location ?a)
-            (location ?b)
-            (not(= ?a ?b))
-            (door ?a ?b)
-            (person ?p)
-            (lequipment ?e)
-            (personloc ?p ?a)
-            (lequipmentloc ?e ?a))
-        :effect (and
-            (lequipmentloc ?e ?b)
-            (personloc ?p ?b)
-            (not(lequipmentloc ?e ?a))
-            (not(personloc ?e ?a))
-            )
     )
-    (:action move_light_equipment_elevator
-        :parameters (?a ?b ?p ?e)
-        :precondition (and 
-            (location ?a)
-            (location ?b)
-            (not(= ?a ?b))
-            (elevator ?a ?b)
-            (person ?p)
-            (lequipment ?e)
-            (personloc ?p ?a)
-            (lequipmentloc ?e ?a))
-        :effect (and
-            (lequipmentloc ?e ?b)
-            (personloc ?p ?b)
-            (not(lequipmentloc ?e ?a))
-            (not(personloc ?e ?a))
-            )
-    )
+	
+	(:action pickup_light_object
+		:parameters (?h - humanoid ?lo - lightobj)
+		:precondition (and
+			(forall (?o - obj)
+				(not (holding ?h ?o))
+			)
+			(exists (?place - place)
+				(and
+					(in ?h ?place)
+					(in ?lo ?place)
+				)
+			)
+		)
+		:effect (and
+			(holding ?h ?lo)
+			(not (in ?lo ?place)) ;conceptually it's in the humanoid's hand not the room
+		)
+	)
+	(:action drop_light_object
+		:parameters (?h - humanoid ?lo - lightobj)
+		:precondition (and
+			(holding ?h ?lo)
+			(exists (?p - place) (in ?h ?p))
+		)
+		:effect (and
+			(not (holding ?h ?lo))
+			(in ?lo ?p)
+		)
+	)
+   ; (:action move_light_equipment
+   ;     :parameters (?a ?b ?p ?e)
+   ;     :precondition (and 
+   ;         (location ?a)
+   ;         (location ?b)
+   ;         (not(= ?a ?b))
+   ;         (door ?a ?b)
+   ;         (person ?p)
+   ;         (lequipment ?e)
+   ;         (personloc ?p ?a)
+   ;         (lequipmentloc ?e ?a))
+   ;     :effect (and
+   ;         (lequipmentloc ?e ?b)
+   ;         (personloc ?p ?b)
+   ;         (not(lequipmentloc ?e ?a))
+   ;         (not(personloc ?e ?a))
+   ;         )
+   ; )
+   ; (:action move_light_equipment_elevator
+   ;     :parameters (?a ?b ?p ?e)
+   ;     :precondition (and 
+   ;         (location ?a)
+   ;         (location ?b)
+   ;         (not(= ?a ?b))
+   ;         (elevator ?a ?b)
+   ;         (person ?p)
+   ;         (lequipment ?e)
+   ;         (personloc ?p ?a)
+   ;         (lequipmentloc ?e ?a))
+   ;     :effect (and
+   ;         (lequipmentloc ?e ?b)
+   ;         (personloc ?p ?b)
+   ;         (not(lequipmentloc ?e ?a))
+   ;         (not(personloc ?e ?a))
+   ;         )
+   ; )
 )
