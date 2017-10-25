@@ -54,3 +54,4 @@ Temporary Items
 
 #fastdownward output files
 *.sas
+sas_*
