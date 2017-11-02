@@ -51,3 +51,7 @@ Temporary Items
 .recommenders
 .project
 .classpath
+
+#fastdownward output files
+*.sas
+sas_*
