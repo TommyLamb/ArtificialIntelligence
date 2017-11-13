@@ -72,7 +72,7 @@
 		(not (injured liara))
 		(shiploc thessia)
 		
-		(not(crew-dead))
+		(not(crew_dead))
 		)
 	)
 )
