@@ -1,0 +1,100 @@
+\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{a4paper}                   		% ... or a4paper or a5paper or ... 
+%\geometry{landscape}                		% Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
+%Put "DRAFT" in the background.  Due to Filox
+\usepackage{graphics} %or \usepackage{graphicx}
+\usepackage{type1cm}
+\usepackage{eso-pic}
+\makeatletter
+\AddToShipoutPicture{ %
+	\setlength{\@tempdimb}{.5\paperwidth}%
+	\setlength{\@tempdimc}{.5\paperheight}%
+	\setlength{\unitlength}{1pt}%
+	\put(\strip@pt\@tempdimb,\strip@pt\@tempdimc){ %
+		\makebox(0,0){\rotatebox{55}{\textcolor[gray]{0.95} %
+				{\fontsize{7cm}{7cm}\selectfont{DRAFT}}}}%
+		% Adjust 7cm to desired font size as necessary
+	} %
+}
+\makeatother								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{amssymb}
+
+%SetFonts
+
+%SetFonts
+
+
+\title{}
+\author{}
+						% Activate to display a given date or no date
+
+\begin{document}
+
+\begin{titlepage}
+	  \thispagestyle{empty}
+	
+	{\centering
+		
+					
+		
+		\includegraphics[width=0.5\textwidth]{hw.png}\par\vspace{1cm}
+		
+		\vspace{1cm}
+		
+		{\LARGE F29AI \par}
+		
+		{\LARGE Artificial Intelligence and Intelligent Agents \par}
+		
+		\vspace{1.5cm}
+		
+		\vspace{1.5cm}
+		
+		{\scshape\LARGE\bfseries PDDL Assignment \par}
+		
+		\vspace{5cm}
+		
+					
+		
+		\textit{Authors}\par
+		
+		\begin{tabular}{rcl}
+			
+			  \\ \textsc{Tommy Ian Lamb} & - & H00217505\\
+			
+			\\ \textsc{Craig James Duffy} & - &  H00235298\\
+						  \\ \textsc{Dillon Jabez Fearns} & - & H00216974
+\\
+
+			
+		\end{tabular} \\		
+		
+	}
+	
+\end{titlepage}
+
+\pagebreak
+
+\maketitle
+\section{Solution and Interesting Features}
+\textbf{ Our solution was developed using the latest version of the Fast Downward planner for PDDL. We make extensive use of PDDL features which may not be supported in all planners and, as such, cannot provide any guarantee that our solution will work efficiently, or reliably across planners.}
+\subsection{Solution}
+Our modelling of the problem can be found in the \textit{ship.pddl} file and begins with the domain and requirements, types - of which we have made extensive use, predicates, and derived predicates - a feature only supported by Fast Downward as best we could tell, and finally, all the actions. \newline
+\textbf{Actions Include: }\\
+\textit{move\_using\_door:} Allows Humanoids to move around a deck via doors.\\ \textit{move\_using\_lift:} Allows Humanoids to move between decks via lifts. \\ \textit{move\_ship:} Moves the Ship between planets. \\ \textit{teleport\_to\_planet} Teleports all light objects to the planet using the transporter. \\ \textit{teleport\_from\_planet:} Teleports all light objects from the planet using the transporter. \\ \textit{fix\_ship:} Repairs the ship. \\ \textit{fix\_transporter:} Repairs a damaged transporter. \\ \textit{board\_shuttle:} Allows a humanoid to board a shuttlecraft. \\ \textit{alight\_from\_shuttle:} Allows a humanoid to alight from a shuttlecraft. \\ \textit{send\_shuttle\_to\_planet:} Allows a humanoid pilot to fly a shuttlecraft to a nearby planet. \\ \textit{return\_shuttle\_to\_ship:} Allows a humanoid pilot to fly a shuttle back to the ship. \\ \textit{pickup\_light\_object:} Allows a humanoid to pick up a light object. \\ \textit{drop\_light\_object:} Allows a humanoid to drop a light object. \\ \textit{pickup\_heavy\_object:} Allows a robot to pick up a heavy object. \\ \textit{drop\_heavy\_object:} Allows a robot to drop a heavy object. \\ \textit{recharge:} Allows a robot to be recharged. \\ \textit{heal:} Allows a person to be healed. \\ \textit{raise\_shields:} Raises the ships shields. \\ \textit{drop\_shields:} Lowers the ships shields. \\ 
+\newpage 
+
+\subsection{Interesting Features}
+There are a couple oddities relating to how things are implemented; this section aims to outline, and discuss these so that the code is easier to understand:\\ \\ 
+\textbf{Shuttles are Both Objects and Places: } \\
+In order to model the fact that shuttlecraft can be both inside another place (such as inside a shuttle bay) and can have other objects, and humanoids inside of it. We have modelled the shuttlecraft as both objects and places, therefore, when we talk about the shuttlecraft as an object (such as checking if it is in a shuttle bay) then it will be treated as that while also ensuring we can treat it as a location when needed without the need for having two separate objects or extensive checks during these events.\\ \\
+\textbf{We Never Check Plasma is not on a Shuttlecraft: } \\
+We deemed it unnecessary in our implementation to check if the Plasma object was present on a shuttlecraft before attempting to take off. This is due to the fact that our \textit{board\_shuttle} action only works on Humanoids, as such, there should never be plasma on the shuttlecraft. That is, of course, unless you dictate it in your initial state. \\ \\
+\textbf{People and Robots are light objects:  } \\
+Both people are robots are modelled as humanoids, and humanoids are modelled as light objects. This decision was made as it allows us to only check one condition (if the item is a light object) when using the transporters, we also envision the robots to be humanoid in shape. \\ \\
+\textbf{Decks and Lifts}
+We have decided to model the ship as a series of rooms connected to decks, and decks connected to lifts. This allows us to go from \textit{A} to \textit{B} by only checking if there is a path between these two areas. The planner does not need to output \textit{"Move from A to D to E to B"} it can simply say \textit{"Move from A to B"} provided the two areas are connected. In order to do this, we model a \textit{lift\_shaft} and model that if the room is connected to a deck, and if the deck has a lift shaft and is the destination deck has a lift shaft, and the destination room is connected to that deck then A and B are connected. 
+
+\end{document}  
